@@ -1,5 +1,7 @@
 import "./Create.css";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import { useFetch } from "../../hooks/useFetch";
+import { useNavigate } from "react-router-dom";
 export default function Create() {
   const [title, setTitle] = useState("");
   const [method, setMethod] = useState("");
@@ -7,15 +9,20 @@ export default function Create() {
   const [newIngredient, setNewIngredient] = useState("");
   const [ingredients, setIngredients] = useState([]);
   const ingredientInput = useRef(null);
+  const history = useNavigate();
+  const { postData, data, error } = useFetch(
+    "https://61aa7a5abfb110001773f26e.mockapi.io/recipes",
+    "POST"
+  );
   const handleSubmit = (e) => {
     e.preventDefault();
-    const recipe = {
-      title: title,
-      ingredients: ingredients,
-      method: method,
-      cookingTime: cookingTime,
-    };
-    console.log(recipe);
+
+    postData({
+      title,
+      ingredients,
+      method,
+      cookingTime: cookingTime + " minutes",
+    });
   };
   const handleAdd = (e) => {
     e.preventDefault();
@@ -26,6 +33,12 @@ export default function Create() {
     setNewIngredient("");
     ingredientInput.current.focus();
   };
+
+  useEffect(() => {
+    if (data) {
+      history("/");
+    }
+  }, [data]);
   return (
     <div className="create">
       <h2 className="page-title">Add a New Recipe</h2>
@@ -78,7 +91,7 @@ export default function Create() {
             required
           />
         </label>
-        <button className="btn"> Add </button>
+        <button className="btn">Add</button>
       </form>
     </div>
   );
